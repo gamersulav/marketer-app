@@ -1,0 +1,158 @@
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import Head from 'next/head';
+
+function fmt(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
+
+export default function ShopDetail() {
+  const router = useRouter();
+  const { id } = router.query;
+  const [data, setData] = useState(null);
+  const [paying, setPaying] = useState(false);
+  const [payAmt, setPayAmt] = useState('');
+  const [payNote, setPayNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/shops/${id}`).then(r => {
+      if (r.status === 401) { router.push('/login'); return null; }
+      return r.json();
+    }).then(d => d && setData(d));
+  }, [id, router]);
+
+  async function recordPayment(e) {
+    e.preventDefault();
+    if (!payAmt || Number(payAmt) <= 0) return;
+    setSaving(true);
+    const r = await fetch('/api/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shop_id: id, amount: Number(payAmt), note: payNote || undefined }),
+    });
+    const result = await r.json();
+    if (result.ok) {
+      setData(prev => ({ ...prev, shop: result.shop }));
+      setPayAmt('');
+      setPayNote('');
+      setPaying(false);
+      // Refresh full data
+      fetch(`/api/shops/${id}`).then(r => r.json()).then(setData);
+    }
+    setSaving(false);
+  }
+
+  if (!data) return <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>Loading...</div>;
+
+  const { shop, deliveries, payments } = data;
+
+  return (
+    <>
+      <Head><title>{shop.name} — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 24 }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
+          <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 8, padding: 0 }}>
+            ← Back
+          </button>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>{shop.name}</h1>
+          {shop.owner && <p style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>{shop.owner}{shop.phone ? ` · ${shop.phone}` : ''}</p>}
+          {shop.address && <p style={{ fontSize: 12, opacity: 0.65, marginTop: 2 }}>{shop.address}</p>}
+        </div>
+
+        {/* Outstanding Banner */}
+        <div style={{ background: shop.outstanding > 0 ? '#e74c3c' : '#27ae60', color: '#fff', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>Outstanding Due</div>
+            <div style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{fmt(shop.outstanding)}</div>
+          </div>
+          {shop.outstanding > 0 && (
+            <button onClick={() => setPaying(p => !p)} style={{ background: 'rgba(255,255,255,0.25)', border: 'none', color: '#fff', borderRadius: 8, padding: '9px 16px', fontSize: 14, fontWeight: 600 }}>
+              {paying ? 'Cancel' : '💰 Collect'}
+            </button>
+          )}
+          {shop.outstanding === 0 && <div style={{ fontSize: 13, fontWeight: 600 }}>✓ All Clear</div>}
+        </div>
+
+        {/* Payment Form */}
+        {paying && (
+          <form onSubmit={recordPayment} style={{ background: '#fff', margin: '12px', borderRadius: 12, padding: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Record Payment</h3>
+            <input type="number" placeholder={`Amount (max ${fmt(shop.outstanding)})`} value={payAmt}
+              onChange={e => setPayAmt(e.target.value)} min="1" step="1"
+              style={{ width: '100%', padding: '11px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, marginBottom: 8, outline: 'none' }} required />
+            <input type="text" placeholder="Note (optional)" value={payNote}
+              onChange={e => setPayNote(e.target.value)}
+              style={{ width: '100%', padding: '11px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 12, outline: 'none' }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={() => setPayAmt(String(Math.floor(shop.outstanding)))}
+                style={{ flex: 1, padding: '10px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
+                Full Amount
+              </button>
+              <button type="submit" disabled={saving}
+                style={{ flex: 2, padding: '10px', background: saving ? '#aaa' : '#27ae60', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600 }}>
+                {saving ? 'Saving...' : 'Confirm Payment'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Quick New Bill */}
+        <div style={{ padding: '12px 12px 4px' }}>
+          <Link href={`/bills/new?shop=${id}`}>
+            <div style={{ background: '#0f3460', color: '#fff', borderRadius: 12, padding: '13px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 600, fontSize: 14 }}>🧾 Create New Delivery Bill</span>
+              <span style={{ opacity: 0.7 }}>›</span>
+            </div>
+          </Link>
+        </div>
+
+        <div style={{ padding: '4px 12px 12px' }}>
+          {/* Deliveries */}
+          {deliveries.length > 0 && (
+            <div style={{ background: '#fff', borderRadius: 12, marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: 13, color: '#444' }}>
+                Delivery History ({deliveries.length})
+              </div>
+              {deliveries.map((d, i) => (
+                <Link key={d.id} href={`/bills/${d.id}`}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 12px', borderBottom: i < deliveries.length - 1 ? '1px solid #f8f8f8' : 'none' }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{d.delivery_date}</div>
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{d.item_count} item{d.item_count !== 1 ? 's' : ''}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{fmt(d.total)}</div>
+                      <div style={{ fontSize: 12, color: d.total - d.paid > 0 ? '#e74c3c' : '#27ae60' }}>
+                        {d.total - d.paid > 0 ? `Due: ${fmt(d.total - d.paid)}` : '✓ Paid'}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Payments */}
+          {payments.length > 0 && (
+            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: 13, color: '#444' }}>
+                Payment History ({payments.length})
+              </div>
+              {payments.map((p, i) => (
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 12px', borderBottom: i < payments.length - 1 ? '1px solid #f8f8f8' : 'none' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{p.payment_date}</div>
+                    {p.note && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{p.note}</div>}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#27ae60' }}>{fmt(p.amount)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
