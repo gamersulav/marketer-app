@@ -59,8 +59,8 @@ export default function Dashboard() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
+                <ActionBtn href="/broadcast" icon="📢" label="Broadcast" color="#e67e22" />
                 <ActionBtn href="/bills/new" icon="🧾" label="New Bill" color="#0f3460" />
-                <ActionBtn href="/shops" icon="🏪" label="Shops" color="#8e44ad" />
                 <ActionBtn href="/collect" icon="💰" label="Collect" color="#27ae60" />
               </div>
 
@@ -142,7 +142,7 @@ export function BottomNav({ active }) {
     { href: '/bills/new', icon: '🧾', label: 'New Bill', key: 'new' },
     { href: '/shops', icon: '🏪', label: 'Shops', key: 'shops' },
     { href: '/orders', icon: '📬', label: 'Orders', key: 'orders' },
-    { href: '/history', icon: '📋', label: 'History', key: 'history' },
+    { href: '/broadcast', icon: '📢', label: 'Broadcast', key: 'broadcast' },
   ];
   return (
     <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 520, background: '#fff', borderTop: '1px solid #e8e8e8', display: 'flex', zIndex: 100 }}>
