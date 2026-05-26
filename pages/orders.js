@@ -57,36 +57,35 @@ export default function Orders() {
   return (
     <>
       <Head><title>Orders — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 80 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 80 }}>
 
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #8e44ad, #6c3483)', padding: '16px', color: '#fff' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ background: 'linear-gradient(160deg, #3b0764 0%, #6d28d9 100%)', padding: '20px 18px 0', color: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
             <div>
-              <h1 style={{ fontSize: 18, fontWeight: 700 }}>📬 Orders Inbox</h1>
-              <p style={{ fontSize: 13, opacity: 0.75, marginTop: 2 }}>Orders placed by your shops</p>
+              <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.3px' }}>📬 Orders Inbox</h1>
+              <p style={{ fontSize: 12, opacity: 0.55, marginTop: 3 }}>Orders placed by your shops</p>
             </div>
-            <button onClick={() => load(tab)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}>
+            <button onClick={() => load(tab)} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: 10, padding: '7px 14px', fontSize: 13, fontWeight: 500 }}>
               Refresh
             </button>
           </div>
 
-          {/* Tab Bar */}
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
             {['pending', 'confirmed', 'delivered', 'cancelled'].map(s => (
               <button key={s} onClick={() => setTab(s)}
-                style={{ flex: 1, padding: '7px 4px', background: tab === s ? '#fff' : 'rgba(255,255,255,0.15)', color: tab === s ? '#8e44ad' : '#fff', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 700, textTransform: 'capitalize' }}>
+                style={{ flex: 1, padding: '8px 4px', background: tab === s ? '#fff' : 'rgba(255,255,255,0.12)', color: tab === s ? '#6d28d9' : 'rgba(255,255,255,0.8)', border: 'none', borderRadius: 9, fontSize: 11, fontWeight: 700, textTransform: 'capitalize' }}>
                 {s}
               </button>
             ))}
           </div>
         </div>
 
-        <div style={{ padding: '12px' }}>
+        <div style={{ padding: '14px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Loading...</div>
           ) : orders.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: 12, padding: '3rem 16px', textAlign: 'center', color: '#888', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 16, padding: '3rem 16px', textAlign: 'center', color: '#888', boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>{tab === 'pending' ? '📭' : '✅'}</div>
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>
                 {tab === 'pending' ? 'No pending orders' : `No ${tab} orders`}
@@ -112,7 +111,7 @@ function OrderCard({ order, tab, acting, onAct }) {
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <div style={{ background: '#fff', borderRadius: 14, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden', border: tab === 'pending' ? '2px solid #8e44ad22' : '2px solid transparent' }}>
+    <div style={{ background: '#fff', borderRadius: 16, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden', border: tab === 'pending' ? '2px solid #8e44ad22' : '2px solid transparent' }}>
       {/* Card header */}
       <div onClick={() => setExpanded(e => !e)} style={{ padding: '14px 14px 12px', cursor: 'pointer' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -127,7 +126,7 @@ function OrderCard({ order, tab, acting, onAct }) {
             <div style={{ fontSize: 18, fontWeight: 800, color: '#0f3460' }}>{fmt(order.total)}</div>
             <div style={{ fontSize: 11, marginTop: 4, padding: '3px 8px', borderRadius: 6, display: 'inline-block', fontWeight: 700,
               background: tab === 'pending' ? '#f3e5ff' : tab === 'confirmed' ? '#e3f4ff' : tab === 'delivered' ? '#e8fff4' : '#fff0f0',
-              color: tab === 'pending' ? '#8e44ad' : tab === 'confirmed' ? '#0077cc' : tab === 'delivered' ? '#00b894' : '#e74c3c',
+              color: tab === 'pending' ? '#6d28d9' : tab === 'confirmed' ? '#0077cc' : tab === 'delivered' ? '#00b894' : '#e74c3c',
             }}>
               {tab}
             </div>
@@ -166,7 +165,7 @@ function OrderCard({ order, tab, acting, onAct }) {
                 ✕ Cancel
               </button>
               <button onClick={() => onAct(order.id, 'convert')} disabled={!!acting}
-                style={{ flex: 2, padding: '11px', background: acting === order.id + 'convert' ? '#aaa' : '#8e44ad', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700 }}>
+                style={{ flex: 2, padding: '11px', background: acting === order.id + 'convert' ? '#aaa' : '#6d28d9', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700 }}>
                 {acting === order.id + 'convert' ? 'Creating bill...' : '🧾 Convert to Bill'}
               </button>
             </div>

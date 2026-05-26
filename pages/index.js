@@ -5,11 +5,8 @@ import Head from 'next/head';
 
 function fmt(n) { return 'Rs ' + Number(n || 0).toLocaleString('en-IN'); }
 function today() { return new Date().toISOString().slice(0, 10); }
-function fmtShortDate(d) {
-  if (!d) return '';
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-}
+
+const CARD_SHADOW = '0 2px 16px rgba(15,52,96,0.08)';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -19,7 +16,6 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
-  // Sync analytics tab from URL query
   useEffect(() => {
     if (router.query.tab === 'analytics') setActiveTab('analytics');
   }, [router.query.tab]);
@@ -53,68 +49,66 @@ export default function Dashboard() {
   return (
     <>
       <Head><title>MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 72 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 80 }}>
 
-        {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', color: '#fff' }}>
-          <div style={{ padding: '16px 16px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', color: '#fff' }}>
+          <div style={{ padding: '20px 18px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
               <div>
-                <h1 style={{ fontSize: 20, fontWeight: 700 }}>📦 MarketRun</h1>
-                <p style={{ fontSize: 12, opacity: 0.65, marginTop: 2 }}>{todayLabel}</p>
+                <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.3px' }}>📦 MarketRun</h1>
+                <p style={{ fontSize: 12, opacity: 0.55, marginTop: 3, letterSpacing: '0.1px' }}>{todayLabel}</p>
               </div>
-              <button onClick={logout} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}>
+              <button onClick={logout}
+                style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: 10, padding: '7px 14px', fontSize: 13, fontWeight: 500, marginTop: 2 }}>
                 Logout
               </button>
             </div>
           </div>
 
-          {/* Tab Bar */}
-          <div style={{ display: 'flex', marginTop: 12 }}>
+          <div style={{ display: 'flex', marginTop: 16 }}>
             {[
               { key: 'dashboard', label: '🏠 Dashboard' },
               { key: 'analytics', label: '📊 Analytics' },
             ].map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                style={{ flex: 1, padding: '10px 8px', background: 'none', border: 'none', color: activeTab === tab.key ? '#fff' : 'rgba(255,255,255,0.5)', fontWeight: activeTab === tab.key ? 700 : 400, fontSize: 14, borderBottom: activeTab === tab.key ? '2.5px solid #fff' : '2.5px solid transparent', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '11px 8px', background: 'none', border: 'none', color: activeTab === tab.key ? '#fff' : 'rgba(255,255,255,0.45)', fontWeight: activeTab === tab.key ? 700 : 400, fontSize: 14, borderBottom: activeTab === tab.key ? '2px solid #fff' : '2px solid transparent', cursor: 'pointer', letterSpacing: '0.1px' }}>
                 {tab.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div style={{ padding: '16px' }}>
+          <div style={{ padding: '18px 16px' }}>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>Loading...</div>
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Loading...</div>
             ) : data && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                  <StatCard label="Billed Today" value={fmt(data.billed)} color="#0f3460" />
-                  <StatCard label="Collected" value={fmt(data.collected)} color="#27ae60" />
-                  <StatCard label="Due Today" value={fmt(data.due_today)} color="#e74c3c" />
-                  <StatCard label="Total Outstanding" value={fmt(data.total_outstanding)} color="#e67e22" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+                  <StatCard label="Billed Today" value={fmt(data.billed)} color="#0f3460" accent="#dde6ff" />
+                  <StatCard label="Collected" value={fmt(data.collected)} color="#16a34a" accent="#dcfce7" />
+                  <StatCard label="Due Today" value={fmt(data.due_today)} color="#dc2626" accent="#fee2e2" />
+                  <StatCard label="Total Outstanding" value={fmt(data.total_outstanding)} color="#ea580c" accent="#ffedd5" />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
-                  <ActionBtn href="/broadcast" icon="📢" label="Broadcast" color="#e67e22" />
-                  <ActionBtn href="/bills/new" icon="🧾" label="New Bill" color="#0f3460" />
-                  <ActionBtn href="/collect" icon="💰" label="Collect" color="#27ae60" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+                  <ActionBtn href="/broadcast" icon="📢" label="Broadcast" color="#ea580c" shadow="rgba(234,88,12,0.35)" />
+                  <ActionBtn href="/bills/new" icon="🧾" label="New Bill" color="#0f3460" shadow="rgba(15,52,96,0.35)" />
+                  <ActionBtn href="/collect" icon="💰" label="Collect" color="#16a34a" shadow="rgba(22,163,74,0.35)" />
                 </div>
 
                 {data.today_deliveries.length > 0 && (
                   <Section title={`Today's Deliveries (${data.today_deliveries.length})`}>
-                    {data.today_deliveries.map(d => (
+                    {data.today_deliveries.map((d, i) => (
                       <Link key={d.id} href={`/bills/${d.id}`}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 12px', borderBottom: '1px solid #f0f0f0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 14px', borderBottom: i < data.today_deliveries.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
                           <div>
-                            <div style={{ fontWeight: 600, fontSize: 14 }}>{d.shop_name}</div>
-                            {d.note && <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{d.note}</div>}
+                            <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{d.shop_name}</div>
+                            {d.note && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{d.note}</div>}
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 700, fontSize: 14 }}>{fmt(d.total)}</div>
-                            <div style={{ fontSize: 12, color: d.total - d.paid > 0 ? '#e74c3c' : '#27ae60' }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>{fmt(d.total)}</div>
+                            <div style={{ fontSize: 12, marginTop: 2, color: d.total - d.paid > 0 ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
                               {d.total - d.paid > 0 ? `Due: ${fmt(d.total - d.paid)}` : '✓ Paid'}
                             </div>
                           </div>
@@ -126,11 +120,11 @@ export default function Dashboard() {
 
                 {data.top_due.length > 0 && (
                   <Section title="Shops with Outstanding">
-                    {data.top_due.map(s => (
+                    {data.top_due.map((s, i) => (
                       <Link key={s.id} href={`/shops/${s.id}`}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                          <div style={{ fontWeight: 500, fontSize: 14 }}>{s.name}</div>
-                          <div style={{ fontWeight: 700, color: '#e74c3c', fontSize: 14 }}>{fmt(s.outstanding)}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 14px', borderBottom: i < data.top_due.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                          <div style={{ fontWeight: 500, fontSize: 14, color: '#111827' }}>{s.name}</div>
+                          <div style={{ fontWeight: 700, color: '#dc2626', fontSize: 14 }}>{fmt(s.outstanding)}</div>
                         </div>
                       </Link>
                     ))}
@@ -141,11 +135,10 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div style={{ padding: '16px' }}>
+          <div style={{ padding: '18px 16px' }}>
             {analyticsLoading ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>Loading analytics...</div>
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Loading analytics...</div>
             ) : analytics ? (
               <AnalyticsContent data={analytics} />
             ) : null}
@@ -168,129 +161,115 @@ function AnalyticsContent({ data }) {
 
   const tm = data.thisMonth;
   const lm = data.lastMonth;
-  const collectionRate = tm.billed > 0 ? Math.round((Number(tm.collected) / Number(tm.billed)) * 100) : 0;
-  const growthPct = lm.billed > 0 ? Math.round(((Number(tm.billed) - Number(lm.billed)) / Number(lm.billed)) * 100) : null;
+  const collectionRate = Number(tm.billed) > 0 ? Math.round((Number(tm.collected) / Number(tm.billed)) * 100) : 0;
+  const growthPct = Number(lm.billed) > 0 ? Math.round(((Number(tm.billed) - Number(lm.billed)) / Number(lm.billed)) * 100) : null;
 
   return (
     <>
-      {/* Month Comparison */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        <div style={{ background: '#fff', borderRadius: 12, padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>This Month</div>
-          <div style={{ fontSize: 19, fontWeight: 800, color: '#0f3460' }}>{fmt(tm.billed)}</div>
+        <div style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: CARD_SHADOW }}>
+          <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 6, fontWeight: 600 }}>This Month</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f3460', letterSpacing: '-0.3px' }}>{fmt(tm.billed)}</div>
           {growthPct !== null && (
-            <div style={{ fontSize: 11, color: growthPct >= 0 ? '#27ae60' : '#e74c3c', marginTop: 2, fontWeight: 600 }}>
+            <div style={{ fontSize: 12, color: growthPct >= 0 ? '#16a34a' : '#dc2626', marginTop: 3, fontWeight: 600 }}>
               {growthPct >= 0 ? '▲' : '▼'} {Math.abs(growthPct)}% vs last month
             </div>
           )}
-          <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>{tm.bills} bills · {fmt(tm.collected)} collected</div>
+          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 5 }}>{tm.bills} bills · {fmt(tm.collected)} collected</div>
         </div>
-        <div style={{ background: '#fff', borderRadius: 12, padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Last Month</div>
-          <div style={{ fontSize: 19, fontWeight: 800, color: '#666' }}>{fmt(lm.billed)}</div>
-          <div style={{ fontSize: 11, color: '#888', marginTop: 6 }}>{lm.bills} bills · {fmt(lm.collected)} collected</div>
+        <div style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: CARD_SHADOW }}>
+          <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 6, fontWeight: 600 }}>Last Month</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#6b7280', letterSpacing: '-0.3px' }}>{fmt(lm.billed)}</div>
+          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>{lm.bills} bills · {fmt(lm.collected)} collected</div>
         </div>
       </div>
 
-      {/* Collection Rate + Outstanding */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-        <div style={{ background: '#fff', borderRadius: 12, padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Collection Rate</div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: collectionRate >= 80 ? '#27ae60' : collectionRate >= 50 ? '#e67e22' : '#e74c3c' }}>
+        <div style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: CARD_SHADOW }}>
+          <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8, fontWeight: 600 }}>Collection Rate</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: collectionRate >= 80 ? '#16a34a' : collectionRate >= 50 ? '#ea580c' : '#dc2626', letterSpacing: '-0.5px' }}>
             {collectionRate}%
           </div>
-          <div style={{ background: '#f0f0f0', borderRadius: 4, height: 5, marginTop: 8 }}>
-            <div style={{ background: collectionRate >= 80 ? '#27ae60' : collectionRate >= 50 ? '#e67e22' : '#e74c3c', height: '100%', borderRadius: 4, width: `${collectionRate}%` }} />
+          <div style={{ background: '#f3f4f6', borderRadius: 4, height: 5, marginTop: 10 }}>
+            <div style={{ background: collectionRate >= 80 ? '#16a34a' : collectionRate >= 50 ? '#ea580c' : '#dc2626', height: '100%', borderRadius: 4, width: `${collectionRate}%` }} />
           </div>
-          <div style={{ fontSize: 10, color: '#aaa', marginTop: 4 }}>this month</div>
+          <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 5 }}>this month</div>
         </div>
-        <div style={{ background: '#fff', borderRadius: 12, padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Outstanding</div>
-          <div style={{ fontSize: 19, fontWeight: 800, color: '#e74c3c' }}>{fmt(data.outstanding.total)}</div>
-          <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>{data.outstanding.count} shop{data.outstanding.count !== 1 ? 's' : ''}</div>
+        <div style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: CARD_SHADOW }}>
+          <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8, fontWeight: 600 }}>Outstanding</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#dc2626', letterSpacing: '-0.3px' }}>{fmt(data.outstanding.total)}</div>
+          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 5 }}>{data.outstanding.count} shop{data.outstanding.count !== 1 ? 's' : ''}</div>
         </div>
       </div>
 
-      {/* Revenue Chart */}
-      <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>Revenue Trend</span>
-          <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: 8, padding: 2, gap: 2 }}>
-            <button onClick={() => setChartView('weekly')}
-              style={{ padding: '4px 10px', background: chartView === 'weekly' ? '#0f3460' : 'transparent', color: chartView === 'weekly' ? '#fff' : '#666', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-              7 Days
-            </button>
-            <button onClick={() => setChartView('monthly')}
-              style={{ padding: '4px 10px', background: chartView === 'monthly' ? '#0f3460' : 'transparent', color: chartView === 'monthly' ? '#fff' : '#666', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-              6 Months
-            </button>
+      <div style={{ background: '#fff', borderRadius: 16, padding: '16px', marginBottom: 12, boxShadow: CARD_SHADOW }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>Revenue Trend</span>
+          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: 10, padding: 3, gap: 2 }}>
+            {[['weekly', '7 Days'], ['monthly', '6 Months']].map(([key, label]) => (
+              <button key={key} onClick={() => setChartView(key)}
+                style={{ padding: '4px 11px', background: chartView === key ? '#0f3460' : 'transparent', color: chartView === key ? '#fff' : '#6b7280', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Bars */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90, marginBottom: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 90, marginBottom: 8 }}>
           {chartData.map((d, i) => {
             const barH = maxRevenue > 0 ? Math.max((d.revenue / maxRevenue) * 86, d.revenue > 0 ? 4 : 0) : 0;
             const collH = d.revenue > 0 ? (d.collected / d.revenue) * barH : 0;
             return (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-                <div style={{ width: '100%', position: 'relative', height: barH, background: '#dde6ff', borderRadius: '4px 4px 0 0' }}>
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: collH, background: '#0f3460', borderRadius: '4px 4px 0 0' }} />
+                <div style={{ width: '100%', position: 'relative', height: barH, background: '#e0e7ff', borderRadius: '5px 5px 0 0' }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: collH, background: '#0f3460', borderRadius: '5px 5px 0 0' }} />
                 </div>
               </div>
             );
           })}
         </div>
-
-        {/* X-axis */}
         <div style={{ display: 'flex', gap: 5 }}>
           {chartData.map((d, i) => (
-            <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#aaa' }}>{d.label}</div>
+            <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#9ca3af', fontWeight: 500 }}>{d.label}</div>
           ))}
         </div>
-
-        {/* Legend */}
-        <div style={{ display: 'flex', gap: 16, marginTop: 10, justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <div style={{ width: 10, height: 10, background: '#dde6ff', borderRadius: 2 }} />
-            <span style={{ fontSize: 11, color: '#888' }}>Billed</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <div style={{ width: 10, height: 10, background: '#0f3460', borderRadius: 2 }} />
-            <span style={{ fontSize: 11, color: '#888' }}>Collected</span>
-          </div>
+        <div style={{ display: 'flex', gap: 16, marginTop: 12, justifyContent: 'center' }}>
+          {[['#e0e7ff', 'Billed'], ['#0f3460', 'Collected']].map(([bg, label]) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 10, height: 10, background: bg, borderRadius: 3 }} />
+              <span style={{ fontSize: 11, color: '#6b7280' }}>{label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Top Shops */}
       {data.topShops.length > 0 && (
         <Section title="Top Shops This Month">
           {data.topShops.map((s, i) => {
             const rate = Number(s.revenue) > 0 ? Math.round((Number(s.collected) / Number(s.revenue)) * 100) : 0;
             return (
-              <div key={i} style={{ padding: '11px 12px', borderBottom: i < data.topShops.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{s.name}</div>
+              <div key={i} style={{ padding: '13px 14px', borderBottom: i < data.topShops.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{s.name}</div>
                   <div style={{ fontWeight: 700, color: '#0f3460', fontSize: 14 }}>{fmt(s.revenue)}</div>
                 </div>
-                <div style={{ background: '#f0f0f0', borderRadius: 3, height: 4 }}>
-                  <div style={{ background: '#27ae60', height: '100%', borderRadius: 3, width: `${rate}%` }} />
+                <div style={{ background: '#f3f4f6', borderRadius: 4, height: 4 }}>
+                  <div style={{ background: '#16a34a', height: '100%', borderRadius: 4, width: `${rate}%` }} />
                 </div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>Collected {rate}% · {fmt(s.collected)}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>Collected {rate}% · {fmt(s.collected)}</div>
               </div>
             );
           })}
         </Section>
       )}
 
-      {/* Top Products */}
       {data.topProducts.length > 0 && (
         <Section title="Top Products This Month">
           {data.topProducts.map((p, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 12px', borderBottom: i < data.topProducts.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 14px', borderBottom: i < data.topProducts.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>{p.product_name}</div>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{Number(p.total_qty)} units sold</div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{p.product_name}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{Number(p.total_qty)} units sold</div>
               </div>
               <div style={{ fontWeight: 700, color: '#0f3460', fontSize: 14 }}>{fmt(p.revenue)}</div>
             </div>
@@ -299,7 +278,7 @@ function AnalyticsContent({ data }) {
       )}
 
       {data.topShops.length === 0 && data.topProducts.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '2rem', background: '#fff', borderRadius: 12, color: '#888' }}>
+        <div style={{ textAlign: 'center', padding: '2.5rem', background: '#fff', borderRadius: 16, color: '#9ca3af' }}>
           No billing data for this month yet.
         </div>
       )}
@@ -329,30 +308,30 @@ function buildMonthlyChart(monthlyData) {
   });
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color, accent }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-      <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 17, fontWeight: 700, color }}>{value}</div>
+    <div style={{ background: '#fff', borderRadius: 16, padding: '16px 14px', boxShadow: CARD_SHADOW, borderTop: `3px solid ${color}` }}>
+      <div style={{ fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 6, fontWeight: 600 }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color, letterSpacing: '-0.2px' }}>{value}</div>
     </div>
   );
 }
 
-function ActionBtn({ href, icon, label, color }) {
+function ActionBtn({ href, icon, label, color, shadow }) {
   return (
     <Link href={href}>
-      <div style={{ background: color, borderRadius: 12, padding: '14px 8px', textAlign: 'center', color: '#fff' }}>
-        <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
-        <div style={{ fontSize: 12, fontWeight: 600 }}>{label}</div>
+      <div style={{ background: color, borderRadius: 14, padding: '15px 8px', textAlign: 'center', color: '#fff', boxShadow: `0 4px 14px ${shadow}` }}>
+        <div style={{ fontSize: 22, marginBottom: 5 }}>{icon}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.1px' }}>{label}</div>
       </div>
     </Link>
   );
 }
 
-function Section({ title, children }) {
+export function Section({ title, children }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 12, marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: 13, color: '#444' }}>{title}</div>
+    <div style={{ background: '#fff', borderRadius: 16, marginBottom: 12, boxShadow: CARD_SHADOW, overflow: 'hidden' }}>
+      <div style={{ padding: '11px 14px', borderBottom: '1px solid #f3f4f6', fontWeight: 700, fontSize: 13, color: '#374151', letterSpacing: '0.1px' }}>{title}</div>
       {children}
     </div>
   );
@@ -370,26 +349,27 @@ export function LeftDrawer({ active, onClose }) {
 
   return (
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 500 }} />
-      <div style={{ position: 'fixed', top: 0, left: 0, width: 265, height: '100vh', background: 'linear-gradient(180deg, #1a1a2e 0%, #0f3460 100%)', zIndex: 501, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '40px 20px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>📦 MarketRun</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>Distributor App</div>
+      <div onClick={onClose}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 500, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)', animation: 'fadeInOverlay 0.2s ease' }} />
+      <div style={{ position: 'fixed', top: 0, left: 0, width: 270, height: '100vh', background: 'linear-gradient(175deg, #0d1b2a 0%, #0f3460 100%)', zIndex: 501, display: 'flex', flexDirection: 'column', animation: 'slideInLeft 0.24s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+        <div style={{ padding: '44px 22px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>📦 MarketRun</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 4, letterSpacing: '0.2px' }}>Distributor App</div>
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', paddingTop: 6, paddingBottom: 20 }}>
+        <div style={{ flex: 1, overflowY: 'auto', paddingTop: 8, paddingBottom: 20 }}>
           {links.map(l => {
             const isActive = active === l.key;
             return (
               <Link key={l.key} href={l.href} onClick={onClose}
-                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', textDecoration: 'none', background: isActive ? 'rgba(255,255,255,0.13)' : 'transparent', borderLeft: isActive ? '3px solid #fff' : '3px solid transparent' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 22px', textDecoration: 'none', background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent', borderLeft: isActive ? '3px solid rgba(255,255,255,0.9)' : '3px solid transparent', transition: 'background 0.15s' }}>
                 <span style={{ fontSize: 20 }}>{l.icon}</span>
-                <span style={{ fontSize: 15, fontWeight: isActive ? 700 : 400, color: isActive ? '#fff' : 'rgba(255,255,255,0.65)' }}>{l.label}</span>
+                <span style={{ fontSize: 15, fontWeight: isActive ? 700 : 400, color: isActive ? '#fff' : 'rgba(255,255,255,0.58)', letterSpacing: '0.1px' }}>{l.label}</span>
               </Link>
             );
           })}
         </div>
-        <div style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>MarketRun v1.0</div>
+        <div style={{ padding: '14px 22px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.3px' }}>MarketRun v1.0</div>
         </div>
       </div>
     </>
@@ -408,19 +388,23 @@ export function BottomNav({ active }) {
   return (
     <>
       {drawerOpen && <LeftDrawer active={active} onClose={() => setDrawerOpen(false)} />}
-      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 520, background: '#fff', borderTop: '1px solid #e8e8e8', display: 'flex', zIndex: 100 }}>
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 520, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderTop: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 -2px 20px rgba(0,0,0,0.07)', display: 'flex', zIndex: 100 }}>
         <button onClick={() => setDrawerOpen(true)}
-          style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 0', background: 'none', border: 'none', color: '#999', cursor: 'pointer' }}>
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '9px 0 10px', background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
           <span style={{ fontSize: 20 }}>☰</span>
-          <span style={{ fontSize: 10, marginTop: 2, fontWeight: 400 }}>Menu</span>
+          <span style={{ fontSize: 10, marginTop: 2, fontWeight: 500 }}>Menu</span>
         </button>
-        {links.map(l => (
-          <Link key={l.key} href={l.href}
-            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 0', color: active === l.key ? '#0f3460' : '#999', textDecoration: 'none' }}>
-            <span style={{ fontSize: 20 }}>{l.icon}</span>
-            <span style={{ fontSize: 10, marginTop: 2, fontWeight: active === l.key ? 700 : 400 }}>{l.label}</span>
-          </Link>
-        ))}
+        {links.map(l => {
+          const isActive = active === l.key;
+          return (
+            <Link key={l.key} href={l.href}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '9px 0 10px', color: isActive ? '#0f3460' : '#9ca3af', textDecoration: 'none', position: 'relative' }}>
+              {isActive && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 2.5, background: '#0f3460', borderRadius: '0 0 3px 3px' }} />}
+              <span style={{ fontSize: 20 }}>{l.icon}</span>
+              <span style={{ fontSize: 10, marginTop: 2, fontWeight: isActive ? 700 : 500, letterSpacing: '0.1px' }}>{l.label}</span>
+            </Link>
+          );
+        })}
       </div>
     </>
   );

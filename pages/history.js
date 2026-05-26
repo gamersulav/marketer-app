@@ -65,11 +65,11 @@ export default function History() {
   return (
     <>
       <Head><title>History — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 80 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 80 }}>
 
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
-          <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>📋 Sales History</h1>
+        <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', padding: '20px 18px 16px', color: '#fff' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 14, letterSpacing: '-0.3px' }}>📋 Sales History</h1>
 
           {/* Filters */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
@@ -90,7 +90,7 @@ export default function History() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: '#fff', borderBottom: '1px solid #eee' }}>
             <SummaryCell label="Billed" value={fmt(visibleBilled)} color="#0f3460" />
             <SummaryCell label="Collected" value={fmt(visibleCollected)} color="#27ae60" />
-            <SummaryCell label="Due" value={fmt(visibleDue)} color={visibleDue > 0 ? '#e74c3c' : '#27ae60'} />
+            <SummaryCell label="Due" value={fmt(visibleDue)} color={visibleDue > 0 ? '#dc2626' : '#16a34a'} />
           </div>
         )}
 
@@ -98,7 +98,7 @@ export default function History() {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Loading...</div>
           ) : deliveries.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: 12, color: '#888' }}>
+            <div style={{ textAlign: 'center', padding: '3rem', background: '#fff', borderRadius: 16, color: '#888' }}>
               No sales found for this period.
             </div>
           ) : (
@@ -113,7 +113,7 @@ export default function History() {
 
               {deliveries.length < totalCount && (
                 <button onClick={() => load(false)} disabled={loadingMore}
-                  style={{ width: '100%', padding: '12px', background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 12, fontSize: 14, color: '#555', fontWeight: 600, marginTop: 4 }}>
+                  style={{ width: '100%', padding: '12px', background: '#fff', border: '1.5px solid #e0e0e0', borderRadius: 16, fontSize: 14, color: '#555', fontWeight: 600, marginTop: 4 }}>
                   {loadingMore ? 'Loading...' : `Load More (${totalCount - deliveries.length} remaining)`}
                 </button>
               )}
@@ -141,7 +141,7 @@ function DeliveryCard({ d, expanded, onToggle }) {
   const itemSummary = d.items.map(i => i.product_name).join(', ');
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, marginBottom: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+    <div style={{ background: '#fff', borderRadius: 16, marginBottom: 10, boxShadow: '0 2px 16px rgba(15,52,96,0.07)', overflow: 'hidden' }}>
       {/* Card Header — always visible */}
       <div onClick={onToggle} style={{ padding: '12px', cursor: 'pointer' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -154,7 +154,7 @@ function DeliveryCard({ d, expanded, onToggle }) {
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: '#0f3460' }}>{fmt(d.total)}</div>
-            <div style={{ fontSize: 11, marginTop: 2, color: due > 0 ? '#e74c3c' : '#27ae60', fontWeight: 600 }}>
+            <div style={{ fontSize: 11, marginTop: 2, color: due > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
               {due > 0 ? `Due ${fmt(due)}` : '✓ Paid'}
             </div>
           </div>
@@ -203,8 +203,8 @@ function DeliveryCard({ d, expanded, onToggle }) {
           {/* Totals row */}
           <div style={{ padding: '10px 12px', background: '#f0f4ff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13 }}>
-              <span style={{ color: '#27ae60', fontWeight: 600 }}>Paid: {fmt(d.paid)}</span>
-              {due > 0 && <span style={{ color: '#e74c3c', fontWeight: 600, marginLeft: 12 }}>Due: {fmt(due)}</span>}
+              <span style={{ color: '#16a34a', fontWeight: 600 }}>Paid: {fmt(d.paid)}</span>
+              {due > 0 && <span style={{ color: '#dc2626', fontWeight: 600, marginLeft: 12 }}>Due: {fmt(due)}</span>}
             </div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#0f3460' }}>Total: {fmt(d.total)}</div>
           </div>

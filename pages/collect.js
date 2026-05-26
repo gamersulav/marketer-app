@@ -53,9 +53,9 @@ export default function Collect() {
   return (
     <>
       <Head><title>Collect — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 80 }}>
-        <div style={{ background: 'linear-gradient(135deg, #27ae60, #1e8449)', padding: '16px', color: '#fff' }}>
-          <h1 style={{ fontSize: 18, fontWeight: 700 }}>💰 Collect Payment</h1>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 80 }}>
+        <div style={{ background: 'linear-gradient(160deg, #064e3b 0%, #16a34a 100%)', padding: '20px 18px 16px', color: '#fff' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.3px' }}>💰 Collect Payment</h1>
           <p style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>Record cash collection from shops</p>
         </div>
 
@@ -67,7 +67,7 @@ export default function Collect() {
           )}
 
           <form onSubmit={submit}>
-            <div style={{ background: '#fff', borderRadius: 12, padding: '16px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <div style={{ background: '#fff', borderRadius: 16, padding: '16px', marginBottom: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
               <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>SHOP</label>
               <select value={selected} onChange={e => { setSelected(e.target.value); setSuccess(''); }} required
                 style={{ width: '100%', padding: '11px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, background: '#fff', marginBottom: 10 }}>
@@ -89,7 +89,7 @@ export default function Collect() {
               {shop && (
                 <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                   <button type="button" onClick={() => setAmount(String(Math.floor(shop.outstanding)))}
-                    style={{ flex: 1, padding: '8px', background: '#f0fef4', border: 'none', borderRadius: 8, fontSize: 13, color: '#27ae60', fontWeight: 600 }}>
+                    style={{ flex: 1, padding: '8px', background: '#f0fef4', border: 'none', borderRadius: 8, fontSize: 13, color: '#16a34a', fontWeight: 600 }}>
                     Full: {fmt(shop.outstanding)}
                   </button>
                 </div>
@@ -107,14 +107,14 @@ export default function Collect() {
             {error && <div style={{ background: '#fef0f0', color: '#e74c3c', borderRadius: 10, padding: '10px 12px', marginBottom: 12, fontSize: 14 }}>{error}</div>}
 
             <button type="submit" disabled={saving || !selected || !amount}
-              style={{ width: '100%', padding: '15px', background: saving || !selected || !amount ? '#aaa' : '#27ae60', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700 }}>
+              style={{ width: '100%', padding: '15px', background: saving || !selected || !amount ? '#aaa' : '#16a34a', color: '#fff', border: 'none', borderRadius: 16, fontSize: 16, fontWeight: 700 }}>
               {saving ? 'Saving...' : 'Record Payment'}
             </button>
           </form>
 
           {/* All shops with outstanding */}
           {shops.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: 12, marginTop: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+            <div style={{ background: '#fff', borderRadius: 16, marginTop: 20, boxShadow: '0 2px 16px rgba(15,52,96,0.07)', overflow: 'hidden' }}>
               <div style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0', fontWeight: 700, fontSize: 13, color: '#444' }}>
                 All Outstanding Shops ({shops.length})
               </div>

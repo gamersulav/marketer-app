@@ -37,20 +37,20 @@ export default function Shops() {
   return (
     <>
       <Head><title>Shops — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 72 }}>
-        <div style={{ background: 'linear-gradient(135deg, #8e44ad, #6c3483)', padding: '16px', color: '#fff' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h1 style={{ fontSize: 18, fontWeight: 700 }}>🏪 Shops</h1>
-            <button onClick={() => setAdding(a => !a)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 14px', fontSize: 14, fontWeight: 600 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 80 }}>
+        <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', padding: '20px 18px 16px', color: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.3px' }}>🏪 Shops</h1>
+            <button onClick={() => setAdding(a => !a)} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: 10, padding: '7px 14px', fontSize: 13, fontWeight: 600 }}>
               {adding ? 'Cancel' : '+ Add'}
             </button>
           </div>
           <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search shops..."
-            style={{ width: '100%', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: 8, padding: '9px 12px', fontSize: 14 }} />
+            style={{ width: '100%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: 10, padding: '10px 14px', fontSize: 14 }} />
         </div>
 
         {adding && (
-          <form onSubmit={addShop} style={{ background: '#fff', margin: '12px 12px 0', borderRadius: 12, padding: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <form onSubmit={addShop} style={{ background: '#fff', margin: '14px 14px 0', borderRadius: 16, padding: '18px', boxShadow: '0 2px 16px rgba(15,52,96,0.08)' }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>New Shop</h3>
             {[
               { key: 'name', placeholder: 'Shop name *', required: true },
@@ -63,31 +63,31 @@ export default function Shops() {
                 style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 8, outline: 'none' }} />
             ))}
             <button type="submit" disabled={saving}
-              style={{ width: '100%', padding: '12px', background: saving ? '#aaa' : '#8e44ad', color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 600 }}>
+              style={{ width: '100%', padding: '13px', background: saving ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, boxShadow: '0 4px 14px rgba(15,52,96,0.35)' }}>
               {saving ? 'Saving...' : 'Add Shop'}
             </button>
           </form>
         )}
 
-        <div style={{ padding: '12px' }}>
+        <div style={{ padding: '14px' }}>
           {filtered.length === 0 && !adding && (
-            <div style={{ textAlign: 'center', color: '#888', padding: '2rem', background: '#fff', borderRadius: 12 }}>
+            <div style={{ textAlign: 'center', color: '#9ca3af', padding: '2.5rem', background: '#fff', borderRadius: 16, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
               {filter ? 'No shops match.' : 'No shops yet. Add your first shop.'}
             </div>
           )}
-          <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
             {filtered.map((s, i) => (
               <Link key={s.id} href={`/shops/${s.id}`}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: i < filtered.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', borderBottom: i < filtered.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 15 }}>{s.name}</div>
-                    {s.owner && <div style={{ fontSize: 12, color: '#777', marginTop: 2 }}>{s.owner}{s.phone ? ` · ${s.phone}` : ''}</div>}
+                    <div style={{ fontWeight: 600, fontSize: 15, color: '#111827' }}>{s.name}</div>
+                    {s.owner && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 3 }}>{s.owner}{s.phone ? ` · ${s.phone}` : ''}</div>}
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     {s.outstanding > 0
-                      ? <div style={{ fontWeight: 700, color: '#e74c3c', fontSize: 14 }}>{fmt(s.outstanding)}</div>
-                      : <div style={{ fontSize: 12, color: '#27ae60', fontWeight: 600 }}>✓ Clear</div>}
-                    <div style={{ fontSize: 11, color: '#aaa', marginTop: 2 }}>›</div>
+                      ? <div style={{ fontWeight: 700, color: '#dc2626', fontSize: 14 }}>{fmt(s.outstanding)}</div>
+                      : <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600 }}>✓ Clear</div>}
+                    <div style={{ fontSize: 13, color: '#d1d5db', marginTop: 2 }}>›</div>
                   </div>
                 </div>
               </Link>

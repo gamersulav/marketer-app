@@ -88,17 +88,17 @@ export default function NewBill() {
   return (
     <>
       <Head><title>New Bill — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 24 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 24 }}>
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
+        <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', padding: '20px 18px 16px', color: '#fff' }}>
           <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 8, padding: 0 }}>← Back</button>
-          <h1 style={{ fontSize: 18, fontWeight: 700 }}>🧾 New Delivery Bill</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.3px' }}>🧾 New Delivery Bill</h1>
         </div>
 
         <form onSubmit={submit} style={{ padding: '12px' }}>
           {/* Pre-filled from order banner */}
           {prefillOrderId && (
-            <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 12, padding: '11px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 16, padding: '11px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 20 }}>📬</span>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>Pre-filled from Order #{prefillOrderId}</div>
@@ -107,7 +107,7 @@ export default function NewBill() {
             </div>
           )}
           {/* Shop + Date */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '14px', marginBottom: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
             <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>SHOP *</label>
             <select value={shopId} onChange={e => setShopId(e.target.value)} required
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, background: '#fff', marginBottom: 10 }}>
@@ -120,7 +120,7 @@ export default function NewBill() {
           </div>
 
           {/* Items */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '14px', marginBottom: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontWeight: 700, fontSize: 14 }}>Items</span>
               <button type="button" onClick={addItem} style={{ background: '#0f3460', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 13, fontWeight: 600 }}>+ Add Row</button>
@@ -168,7 +168,7 @@ export default function NewBill() {
           </div>
 
           {/* Payment */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '14px', marginBottom: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
             <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>PAID NOW (leave blank if full credit)</label>
             <input type="number" placeholder="0" value={paid} onChange={e => setPaid(e.target.value)} min="0" step="any"
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, marginBottom: 8, outline: 'none' }} />
@@ -185,7 +185,7 @@ export default function NewBill() {
           </div>
 
           {/* Note */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '14px', marginBottom: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
             <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>NOTE (optional)</label>
             <input type="text" placeholder="e.g. Delivered by bike, extra charge" value={note} onChange={e => setNote(e.target.value)}
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, outline: 'none' }} />
@@ -194,7 +194,7 @@ export default function NewBill() {
           {error && <div style={{ background: '#fef0f0', color: '#e74c3c', borderRadius: 10, padding: '10px 12px', marginBottom: 12, fontSize: 14 }}>{error}</div>}
 
           <button type="submit" disabled={saving}
-            style={{ width: '100%', padding: '15px', background: saving ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700 }}>
+            style={{ width: '100%', padding: '15px', background: saving ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 16, fontSize: 16, fontWeight: 700 }}>
             {saving ? 'Saving Bill...' : `Save Bill — ${fmt(total)}`}
           </button>
         </form>

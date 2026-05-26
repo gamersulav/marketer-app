@@ -128,9 +128,9 @@ export default function Broadcast() {
     return (
       <>
         <Head><title>Sending — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-        <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 32 }}>
+        <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 32 }}>
           {/* Header */}
-          <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '20px 16px', color: '#fff' }}>
+          <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', padding: '20px 16px', color: '#fff' }}>
             <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 4 }}>Sending order requests</div>
             <h1 style={{ fontSize: 20, fontWeight: 800 }}>
               {done ? '✅ All Done!' : `📢 ${sentCount} of ${queue.length} sent`}
@@ -154,7 +154,7 @@ export default function Broadcast() {
                   Your shops have received their order request links. Orders will come in as they place them.
                 </div>
                 <button onClick={reset}
-                  style={{ width: '100%', padding: '14px', background: '#0f3460', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700 }}>
+                  style={{ width: '100%', padding: '14px', background: '#0f3460', color: '#fff', border: 'none', borderRadius: 16, fontSize: 16, fontWeight: 700 }}>
                   Back to Broadcast
                 </button>
               </div>
@@ -162,7 +162,7 @@ export default function Broadcast() {
               <>
                 {/* Last sent */}
                 {prev && (
-                  <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 16, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: 20 }}>✅</span>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>Sent to {prev.name}</div>
@@ -197,14 +197,14 @@ export default function Broadcast() {
                 </button>
 
                 <button onClick={reset}
-                  style={{ width: '100%', marginTop: 10, padding: '12px', background: 'transparent', border: '1.5px solid #ddd', borderRadius: 12, fontSize: 14, color: '#888', fontWeight: 600 }}>
+                  style={{ width: '100%', marginTop: 10, padding: '12px', background: 'transparent', border: '1.5px solid #ddd', borderRadius: 16, fontSize: 14, color: '#888', fontWeight: 600 }}>
                   Stop Sending
                 </button>
               </>
             )}
 
             {/* Shop queue */}
-            <div style={{ background: '#fff', borderRadius: 12, marginTop: 16, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: '#fff', borderRadius: 16, marginTop: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
               <div style={{ padding: '10px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 12, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                 All {queue.length} shops
               </div>
@@ -232,10 +232,10 @@ export default function Broadcast() {
   return (
     <>
       <Head><title>Broadcast — MarketRun</title><meta name="viewport" content="width=device-width, initial-scale=1" /></Head>
-      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 100 }}>
+      <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#eaecf2', paddingBottom: 100 }}>
 
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
+        <div style={{ background: 'linear-gradient(160deg, #0d1b2a 0%, #0f3460 100%)', padding: '16px', color: '#fff' }}>
           <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>📢 Send Order Request</h1>
           <p style={{ fontSize: 13, opacity: 0.75, marginBottom: 14 }}>
             Select shops and send them their ordering link on WhatsApp.
@@ -251,7 +251,7 @@ export default function Broadcast() {
 
             {/* Select All row */}
             <div onClick={toggleAll}
-              style={{ background: '#fff', borderRadius: 12, padding: '13px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.07)', cursor: 'pointer', border: '1.5px solid #e0e0e0' }}>
+              style={{ background: '#fff', borderRadius: 16, padding: '13px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 16px rgba(15,52,96,0.07)', cursor: 'pointer', border: '1.5px solid #e0e0e0' }}>
               <div style={{ width: 24, height: 24, borderRadius: 6, background: allFilteredSelected ? '#0f3460' : '#f0f0f0', border: `2px solid ${allFilteredSelected ? '#0f3460' : '#ccc'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                 {allFilteredSelected && <span style={{ color: '#fff', fontSize: 14, fontWeight: 800 }}>✓</span>}
               </div>
@@ -262,7 +262,7 @@ export default function Broadcast() {
             </div>
 
             {/* Shop list */}
-            <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
               {filtered.length === 0 && (
                 <div style={{ padding: '2rem', textAlign: 'center', color: '#aaa', fontSize: 14 }}>No shops found.</div>
               )}
@@ -302,7 +302,7 @@ export default function Broadcast() {
 
             {/* Message preview */}
             {selectedShops.length > 0 && (
-              <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginTop: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+              <div style={{ background: '#fff', borderRadius: 16, padding: '14px', marginTop: 10, boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 8 }}>
                   Message preview ({selectedShops[0].name})
                 </div>
