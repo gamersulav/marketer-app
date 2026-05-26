@@ -14,7 +14,8 @@ function fmtDate(d) {
 
 function waPhone(phone) {
   if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
+  const first = phone.split(',')[0].trim();
+  const digits = first.replace(/\D/g, '');
   if (!digits) return null;
   return '977' + digits.replace(/^0/, '');
 }
@@ -56,6 +57,7 @@ export default function ShopDetail() {
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+  const [editPhones, setEditPhones] = useState(['']);
   const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
@@ -114,17 +116,27 @@ export default function ShopDetail() {
 
   function startEdit() {
     const { name, owner, phone, address } = data.shop;
-    setEditForm({ name: name || '', owner: owner || '', phone: phone || '', address: address || '' });
+    setEditForm({ name: name || '', owner: owner || '', address: address || '' });
+    // Split stored comma-separated phones into individual rows
+    const phones = phone ? phone.split(',').map(p => p.trim()).filter(Boolean) : [];
+    setEditPhones(phones.length ? phones : ['']);
     setEditing(true);
   }
+
+  function setPhone(i, val) {
+    setEditPhones(prev => prev.map((p, idx) => idx === i ? val : p));
+  }
+  function addPhone() { setEditPhones(prev => [...prev, '']); }
+  function removePhone(i) { setEditPhones(prev => prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev); }
 
   async function saveEdit(e) {
     e.preventDefault();
     setEditSaving(true);
+    const phone = editPhones.map(p => p.trim()).filter(Boolean).join(', ');
     const r = await fetch(`/api/shops/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify({ ...editForm, phone }),
     });
     const updated = await r.json();
     setData(prev => ({ ...prev, shop: updated }));
@@ -164,13 +176,11 @@ export default function ShopDetail() {
             {[
               { key: 'name', label: 'Shop Name', required: true },
               { key: 'owner', label: 'Owner Name' },
-              { key: 'phone', label: 'Phone Number', type: 'tel' },
-              { key: 'address', label: 'Address' },
             ].map(f => (
               <div key={f.key} style={{ marginBottom: 10 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>{f.label}</label>
                 <input
-                  type={f.type || 'text'}
+                  type="text"
                   value={editForm[f.key]}
                   onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
                   required={f.required}
@@ -178,6 +188,42 @@ export default function ShopDetail() {
                 />
               </div>
             ))}
+
+            {/* Phone Numbers (multi-row) */}
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>Phone Numbers</label>
+              {editPhones.map((ph, i) => (
+                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                  <input
+                    type="tel"
+                    placeholder={`Phone ${i + 1}`}
+                    value={ph}
+                    onChange={e => setPhone(i, e.target.value)}
+                    style={{ flex: 1, padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, outline: 'none' }}
+                  />
+                  {editPhones.length > 1 && (
+                    <button type="button" onClick={() => removePhone(i)}
+                      style={{ padding: '0 12px', background: '#fef0f0', border: 'none', borderRadius: 8, color: '#e74c3c', fontSize: 16, fontWeight: 700, flexShrink: 0 }}>
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button type="button" onClick={addPhone}
+                style={{ width: '100%', padding: '8px', background: '#f0f4ff', border: '1.5px dashed #b0c0ff', borderRadius: 8, color: '#0f3460', fontSize: 13, fontWeight: 600 }}>
+                + Add Number
+              </button>
+            </div>
+
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>Address</label>
+              <input
+                type="text"
+                value={editForm.address}
+                onChange={e => setEditForm(p => ({ ...p, address: e.target.value }))}
+                style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, outline: 'none' }}
+              />
+            </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
               <button type="button" onClick={() => setEditing(false)}
                 style={{ flex: 1, padding: '11px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#555' }}>
