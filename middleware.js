@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'marketer-secret-change-me');
 const COOKIE = 'marketer_session';
-const PUBLIC = ['/login', '/api/auth/login', '/api/auth/setup'];
+const PUBLIC = ['/login', '/api/auth/login', '/api/auth/setup', '/order', '/api/order'];
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;

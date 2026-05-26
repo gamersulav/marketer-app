@@ -14,9 +14,11 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { name, owner, phone, address } = req.body;
     if (!name) return res.status(400).json({ error: 'name required' });
+    const { randomBytes } = await import('crypto');
+    const token = randomBytes(4).toString('hex');
     const r = await db.run(
-      'INSERT INTO shops (name, owner, phone, address) VALUES (?,?,?,?)',
-      [name, owner || null, phone || null, address || null]
+      'INSERT INTO shops (name, owner, phone, address, order_token) VALUES (?,?,?,?,?)',
+      [name, owner || null, phone || null, address || null, token]
     );
     const shop = await db.queryOne('SELECT * FROM shops WHERE id=?', [Number(r.lastInsertRowid)]);
     return res.json(shop);

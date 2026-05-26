@@ -141,7 +141,7 @@ export function BottomNav({ active }) {
     { href: '/', icon: '🏠', label: 'Home', key: 'home' },
     { href: '/bills/new', icon: '🧾', label: 'New Bill', key: 'new' },
     { href: '/shops', icon: '🏪', label: 'Shops', key: 'shops' },
-    { href: '/collect', icon: '💰', label: 'Collect', key: 'collect' },
+    { href: '/orders', icon: '📬', label: 'Orders', key: 'orders' },
     { href: '/history', icon: '📋', label: 'History', key: 'history' },
   ];
   return (
