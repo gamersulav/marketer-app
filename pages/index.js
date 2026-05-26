@@ -142,6 +142,7 @@ export function BottomNav({ active }) {
     { href: '/bills/new', icon: '🧾', label: 'New Bill', key: 'new' },
     { href: '/shops', icon: '🏪', label: 'Shops', key: 'shops' },
     { href: '/collect', icon: '💰', label: 'Collect', key: 'collect' },
+    { href: '/history', icon: '📋', label: 'History', key: 'history' },
   ];
   return (
     <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 520, background: '#fff', borderTop: '1px solid #e8e8e8', display: 'flex', zIndex: 100 }}>
