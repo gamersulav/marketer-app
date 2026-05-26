@@ -54,6 +54,9 @@ export default function ShopDetail() {
   const [payAmt, setPayAmt] = useState('');
   const [payNote, setPayNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -109,6 +112,26 @@ export default function ShopDetail() {
     navigator.clipboard.writeText(link).then(() => alert('Order link copied!')).catch(() => {});
   }
 
+  function startEdit() {
+    const { name, owner, phone, address } = data.shop;
+    setEditForm({ name: name || '', owner: owner || '', phone: phone || '', address: address || '' });
+    setEditing(true);
+  }
+
+  async function saveEdit(e) {
+    e.preventDefault();
+    setEditSaving(true);
+    const r = await fetch(`/api/shops/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm),
+    });
+    const updated = await r.json();
+    setData(prev => ({ ...prev, shop: updated }));
+    setEditing(false);
+    setEditSaving(false);
+  }
+
   if (!data) return <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>Loading...</div>;
 
   const { shop, deliveries, payments } = data;
@@ -120,13 +143,53 @@ export default function ShopDetail() {
       <div style={{ maxWidth: 520, margin: '0 auto', minHeight: '100vh', background: '#f0f2f5', paddingBottom: 24 }}>
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
-          <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 8, padding: 0 }}>
-            ← Back
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 14, padding: 0 }}>
+              ← Back
+            </button>
+            <button onClick={editing ? () => setEditing(false) : startEdit}
+              style={{ background: 'rgba(255,255,255,0.18)', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600 }}>
+              {editing ? 'Cancel' : '✏️ Edit'}
+            </button>
+          </div>
           <h1 style={{ fontSize: 20, fontWeight: 700 }}>{shop.name}</h1>
           {shop.owner && <p style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>{shop.owner}{shop.phone ? ` · ${shop.phone}` : ''}</p>}
           {shop.address && <p style={{ fontSize: 12, opacity: 0.65, marginTop: 2 }}>{shop.address}</p>}
         </div>
+
+        {/* Edit Form */}
+        {editing && (
+          <form onSubmit={saveEdit} style={{ background: '#fff', margin: '12px', borderRadius: 12, padding: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>✏️ Edit Shop Details</h3>
+            {[
+              { key: 'name', label: 'Shop Name', required: true },
+              { key: 'owner', label: 'Owner Name' },
+              { key: 'phone', label: 'Phone Number', type: 'tel' },
+              { key: 'address', label: 'Address' },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom: 10 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>{f.label}</label>
+                <input
+                  type={f.type || 'text'}
+                  value={editForm[f.key]}
+                  onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  required={f.required}
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 15, outline: 'none' }}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <button type="button" onClick={() => setEditing(false)}
+                style={{ flex: 1, padding: '11px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#555' }}>
+                Cancel
+              </button>
+              <button type="submit" disabled={editSaving}
+                style={{ flex: 2, padding: '11px', background: editSaving ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700 }}>
+                {editSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Outstanding Banner */}
         <div style={{ background: shop.outstanding > 0 ? '#e74c3c' : '#27ae60', color: '#fff', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
