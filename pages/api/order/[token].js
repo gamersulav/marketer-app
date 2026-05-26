@@ -12,33 +12,27 @@ export default async function handler(req, res) {
   if (!shop) return res.status(404).json({ error: 'Invalid link' });
 
   if (req.method === 'GET') {
-    const products = await db.query(
-      `SELECT id, name, unit, default_price FROM products WHERE default_price > 0 ORDER BY name ASC`
-    );
-    return res.json({ shop, products });
+    return res.json({ shop });
   }
 
   if (req.method === 'POST') {
     const { items, note } = req.body;
     if (!items?.length) return res.status(400).json({ error: 'No items' });
 
-    const validItems = items.filter(i => Number(i.qty) > 0 && i.product_name);
+    const validItems = items.filter(i => Number(i.qty) > 0 && i.product_name?.trim());
     if (!validItems.length) return res.status(400).json({ error: 'No valid items' });
-
-    const total = validItems.reduce((s, i) => s + Number(i.qty) * Number(i.unit_price), 0);
 
     let orderId;
     await db.tx(async tx => {
       const r = await tx.run(
-        `INSERT INTO orders (shop_id, status, note, total) VALUES (?, 'pending', ?, ?)`,
-        [shop.id, note || null, total]
+        `INSERT INTO orders (shop_id, status, note, total) VALUES (?, 'pending', ?, 0)`,
+        [shop.id, note || null]
       );
       orderId = Number(r.lastInsertRowid);
       for (const item of validItems) {
-        const subtotal = Number(item.qty) * Number(item.unit_price);
         await tx.run(
-          `INSERT INTO order_items (order_id, product_name, unit, qty, unit_price, subtotal) VALUES (?,?,?,?,?,?)`,
-          [orderId, item.product_name, item.unit || 'pcs', Number(item.qty), Number(item.unit_price), subtotal]
+          `INSERT INTO order_items (order_id, product_name, unit, qty, unit_price, subtotal) VALUES (?,?,?,?,0,0)`,
+          [orderId, item.product_name.trim(), item.unit || 'pcs', Number(item.qty)]
         );
       }
     });

@@ -40,8 +40,13 @@ export default function Orders() {
     });
     const d = await r.json();
     setActing(null);
-    if (action === 'convert' && d.delivery_id) {
-      router.push(`/bills/${d.delivery_id}`);
+    if (action === 'convert' && d.redirect_to_bill) {
+      const params = new URLSearchParams({
+        shop: d.shop_id,
+        order: orderId,
+        prefill: JSON.stringify(d.items.map(i => ({ product_name: i.product_name, unit: i.unit, qty: String(i.qty), unit_price: '' }))),
+      });
+      router.push(`/bills/new?${params}`);
     } else {
       load(tab);
     }
@@ -134,12 +139,16 @@ function OrderCard({ order, tab, acting, onAct }) {
       {expanded && (
         <div style={{ borderTop: '1px solid #f5f5f5' }}>
           {order.items.map((item, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid #f8f8f8' }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{item.product_name}</div>
-                <div style={{ fontSize: 12, color: '#aaa' }}>{item.qty} {item.unit} × {fmt(item.unit_price)}</div>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderBottom: '1px solid #f8f8f8' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f0f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+                📦
               </div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f3460' }}>{fmt(item.subtotal)}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#1a1a2e' }}>{item.product_name}</div>
+              </div>
+              <div style={{ background: '#e8f0ff', borderRadius: 8, padding: '4px 12px', fontSize: 14, fontWeight: 800, color: '#0f3460', flexShrink: 0 }}>
+                × {item.qty}
+              </div>
             </div>
           ))}
 

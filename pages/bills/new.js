@@ -8,7 +8,7 @@ const EMPTY_ITEM = () => ({ id: Date.now(), product_name: '', unit: 'pcs', qty: 
 
 export default function NewBill() {
   const router = useRouter();
-  const { shop: prefillShopId } = router.query;
+  const { shop: prefillShopId, prefill: prefillItems, order: prefillOrderId } = router.query;
 
   const [shops, setShops] = useState([]);
   const [products, setProducts] = useState([]);
@@ -19,13 +19,21 @@ export default function NewBill() {
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [showProductPicker, setShowProductPicker] = useState(null); // index of item being edited
+  const [showProductPicker, setShowProductPicker] = useState(null);
   const [productSearch, setProductSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/shops').then(r => r.json()).then(d => { setShops(d); if (prefillShopId) setShopId(String(prefillShopId)); });
     fetch('/api/products').then(r => r.json()).then(setProducts);
   }, [prefillShopId]);
+
+  useEffect(() => {
+    if (!prefillItems) return;
+    try {
+      const parsed = JSON.parse(prefillItems);
+      if (parsed?.length) setItems(parsed.map(p => ({ ...p, id: Date.now() + Math.random() })));
+    } catch {}
+  }, [prefillItems]);
 
   const total = items.reduce((s, i) => s + (Number(i.qty) || 0) * (Number(i.unit_price) || 0), 0);
   const paidAmt = Number(paid) || 0;
@@ -88,6 +96,16 @@ export default function NewBill() {
         </div>
 
         <form onSubmit={submit} style={{ padding: '12px' }}>
+          {/* Pre-filled from order banner */}
+          {prefillOrderId && (
+            <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: 12, padding: '11px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 20 }}>📬</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>Pre-filled from Order #{prefillOrderId}</div>
+                <div style={{ fontSize: 12, color: '#16a34a', marginTop: 2 }}>Add prices for each item, then save.</div>
+              </div>
+            </div>
+          )}
           {/* Shop + Date */}
           <div style={{ background: '#fff', borderRadius: 12, padding: '14px', marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
             <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>SHOP *</label>
