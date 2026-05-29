@@ -19,7 +19,7 @@ function waPhone(phone) {
   return '977' + digits.replace(/^0/, '');
 }
 
-function buildBillMessage({ bill, billId, shopDeliveries }) {
+function buildBillMessage({ bill, billId, shopDeliveries, payLink, payLabel }) {
   const due = Math.max(0, Number(bill.total) - Number(bill.paid));
 
   // Previous outstanding bills (exclude current)
@@ -58,6 +58,11 @@ function buildBillMessage({ bill, billId, shopDeliveries }) {
   lines.push('─────────────────────');
   lines.push(`💰 *Total Due: ${fmt(totalDue)}*`);
   lines.push('');
+  if (payLink) {
+    lines.push(`💳 *${payLabel || 'Scan to Pay'}:*`);
+    lines.push(payLink);
+    lines.push('');
+  }
   lines.push('Please clear at your earliest. Thank you 🙏');
 
   return lines.join('\n');
@@ -99,11 +104,17 @@ export default function BillDetail() {
 
   async function sendWhatsApp() {
     setWaSending(true);
-    // Fetch shop data to get all outstanding deliveries
-    const shopData = await fetch(`/api/shops/${bill.shop_id}`).then(r => r.json());
+    const [shopData, qrData, labelData] = await Promise.all([
+      fetch(`/api/shops/${bill.shop_id}`).then(r => r.json()),
+      fetch('/api/settings?key=payment_qr').then(r => r.json()),
+      fetch('/api/settings?key=payment_qr_label').then(r => r.json()),
+    ]);
     setWaSending(false);
 
-    const msg = buildBillMessage({ bill, billId: id, shopDeliveries: shopData.deliveries || [] });
+    const hasQr  = !!qrData.value;
+    const payLink  = hasQr ? `${window.location.origin}/pay` : null;
+    const payLabel = labelData.value || 'Scan to Pay';
+    const msg = buildBillMessage({ bill, billId: id, shopDeliveries: shopData.deliveries || [], payLink, payLabel });
     const encoded = encodeURIComponent(msg);
     const phone = waPhone(bill.shop_phone);
     const url = phone

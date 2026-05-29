@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -10,12 +10,52 @@ export default function Settings() {
   const [form, setForm] = useState({ name: '', unit: 'pcs', default_price: '' });
   const [saving, setSaving] = useState(false);
 
+  // Payment QR state
+  const [qrImage, setQrImage]   = useState(null);   // base64 data URL
+  const [qrLabel, setQrLabel]   = useState('');
+  const [qrSaving, setQrSaving] = useState(false);
+  const [qrSaved, setQrSaved]   = useState(false);
+  const fileRef = useRef(null);
+
   useEffect(() => {
     fetch('/api/products').then(r => {
       if (r.status === 401) { router.push('/login'); return null; }
       return r.json();
     }).then(d => d && setProducts(d));
+
+    // Load existing QR settings
+    fetch('/api/settings').then(r => r.json()).then(s => {
+      if (s.payment_qr)       setQrImage(s.payment_qr);
+      if (s.payment_qr_label) setQrLabel(s.payment_qr_label);
+    }).catch(() => {});
   }, [router]);
+
+  function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => setQrImage(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  async function saveQr() {
+    setQrSaving(true);
+    await Promise.all([
+      fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'payment_qr', value: qrImage || '' }) }),
+      fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'payment_qr_label', value: qrLabel }) }),
+    ]);
+    setQrSaving(false);
+    setQrSaved(true);
+    setTimeout(() => setQrSaved(false), 2000);
+  }
+
+  async function removeQr() {
+    setQrImage(null);
+    await Promise.all([
+      fetch('/api/settings?key=payment_qr', { method: 'DELETE' }),
+      fetch('/api/settings?key=payment_qr_label', { method: 'DELETE' }),
+    ]);
+  }
 
   async function addProduct(e) {
     e.preventDefault();
@@ -44,10 +84,69 @@ export default function Settings() {
         <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #0f3460)', padding: '16px', color: '#fff' }}>
           <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 8, padding: 0 }}>← Back</button>
           <h1 style={{ fontSize: 18, fontWeight: 700 }}>⚙️ Settings</h1>
-          <p style={{ fontSize: 13, opacity: 0.75, marginTop: 4 }}>Manage product catalog</p>
+          <p style={{ fontSize: 13, opacity: 0.75, marginTop: 4 }}>Payment QR & product catalog</p>
         </div>
 
         <div style={{ padding: '16px' }}>
+
+          {/* Payment QR section */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: '16px', marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>💳 Payment QR Code</h3>
+            <p style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>
+              Upload your eSewa / Khalti / IME Pay QR. It will be included as a link in every bill sent on WhatsApp so shops can scan and pay directly.
+            </p>
+
+            {/* Label */}
+            <input
+              type="text"
+              placeholder="Label (e.g. Pay via eSewa)"
+              value={qrLabel}
+              onChange={e => setQrLabel(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 10, outline: 'none', boxSizing: 'border-box' }}
+            />
+
+            {/* QR preview or upload */}
+            {qrImage ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <img src={qrImage} alt="Payment QR" style={{ width: 90, height: 90, objectFit: 'contain', borderRadius: 8, border: '1px solid #eee' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#333', marginBottom: 6 }}>QR uploaded ✓</div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => fileRef.current?.click()}
+                      style={{ flex: 1, padding: '8px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 13, color: '#333', cursor: 'pointer' }}>
+                      Change
+                    </button>
+                    <button onClick={removeQr}
+                      style={{ padding: '8px 12px', background: '#fef0f0', border: 'none', borderRadius: 8, fontSize: 13, color: '#e74c3c', cursor: 'pointer' }}>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => fileRef.current?.click()}
+                style={{ width: '100%', padding: '32px 12px', background: '#f8f9fb', border: '2px dashed #d0d5dd', borderRadius: 10, fontSize: 14, color: '#555', cursor: 'pointer', marginBottom: 10 }}>
+                📷 Tap to upload QR image
+              </button>
+            )}
+
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={saveQr} disabled={qrSaving || !qrImage}
+                style={{ flex: 1, padding: '11px', background: qrSaved ? '#27ae60' : (qrSaving || !qrImage) ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                {qrSaved ? '✓ Saved!' : qrSaving ? 'Saving...' : 'Save QR'}
+              </button>
+              {qrImage && (
+                <a href="/pay" target="_blank"
+                  style={{ padding: '11px 14px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 13, color: '#333', textDecoration: 'none', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                  Preview ↗
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Product catalog */}
           <div style={{ background: '#fff', borderRadius: 12, padding: '16px', marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
             <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Add Product to Catalog</h3>
             <form onSubmit={addProduct}>
