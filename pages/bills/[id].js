@@ -111,12 +111,35 @@ export default function BillDetail() {
     ]);
     setWaSending(false);
 
-    const hasQr  = !!qrData.value;
-    const payLink  = hasQr ? `${window.location.origin}/pay` : null;
+    const hasQr    = !!qrData.value;
     const payLabel = labelData.value || 'Scan to Pay';
-    const msg = buildBillMessage({ bill, billId: id, shopDeliveries: shopData.deliveries || [], payLink, payLabel });
+    // Always include the /pay link in text so the shop can open it later too
+    const payLink  = hasQr ? `${window.location.origin}/pay` : null;
+    const msg      = buildBillMessage({ bill, billId: id, shopDeliveries: shopData.deliveries || [], payLink, payLabel });
+    const phone    = waPhone(bill.shop_phone);
+
+    // Try Web Share API with the QR image attached — works on Android Chrome & iOS Safari
+    // WhatsApp receives: image (the QR) + caption (the bill text)
+    if (hasQr && typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        // Convert base64 data-URL → Blob → File
+        const res  = await fetch(qrData.value);
+        const blob = await res.blob();
+        const ext  = blob.type.includes('png') ? 'png' : 'jpg';
+        const file = new File([blob], `payment-qr.${ext}`, { type: blob.type });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: msg, title: `Bill #${id} — ${bill.shop_name}` });
+          return; // done — user picked WhatsApp from the share sheet
+        }
+      } catch (err) {
+        // User cancelled or share failed — fall through to wa.me link
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: wa.me text-only link (bill message includes /pay link for the QR)
     const encoded = encodeURIComponent(msg);
-    const phone = waPhone(bill.shop_phone);
     const url = phone
       ? `https://wa.me/${phone}?text=${encoded}`
       : `https://wa.me/?text=${encoded}`;
