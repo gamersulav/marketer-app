@@ -19,6 +19,7 @@ export default function NewBill() {
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [autoSend, setAutoSend] = useState(true);
   const [showProductPicker, setShowProductPicker] = useState(null);
   const [productSearch, setProductSearch] = useState('');
 

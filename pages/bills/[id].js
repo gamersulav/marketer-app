@@ -77,6 +77,14 @@ export default function BillDetail() {
   const [saving, setSaving] = useState(false);
   const [waSending, setWaSending] = useState(false);
 
+  // Edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [editItems, setEditItems] = useState([]);
+  const [editPaid, setEditPaid] = useState('');
+  const [editNote, setEditNote] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
   useEffect(() => {
     if (!id) return;
     fetch(`/api/deliveries/${id}`).then(r => {
@@ -146,7 +154,57 @@ export default function BillDetail() {
     window.open(url, '_blank');
   }
 
+  function openEdit() {
+    setEditItems((bill.items || []).map(it => ({
+      product_name: it.product_name,
+      unit: it.unit || 'pcs',
+      qty: String(it.qty),
+      unit_price: String(it.unit_price),
+    })));
+    setEditPaid(String(bill.paid || ''));
+    setEditNote(bill.note || '');
+    setEditDate(bill.delivery_date || '');
+    setEditMode(true);
+  }
+
+  function editItemChange(idx, field, val) {
+    setEditItems(prev => prev.map((it, i) => i === idx ? { ...it, [field]: val } : it));
+  }
+
+  function addEditItem() {
+    setEditItems(prev => [...prev, { product_name: '', unit: 'pcs', qty: '', unit_price: '' }]);
+  }
+
+  function removeEditItem(idx) {
+    setEditItems(prev => prev.filter((_, i) => i !== idx));
+  }
+
+  async function saveEdit() {
+    const items = editItems.filter(it => it.product_name.trim() && Number(it.qty) > 0 && Number(it.unit_price) >= 0);
+    if (!items.length) return;
+    setEditSaving(true);
+    const r = await fetch(`/api/deliveries/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ delivery_date: editDate, items, paid: Number(editPaid) || 0, note: editNote }),
+    });
+    if (r.ok) {
+      const updated = await r.json();
+      setBill(updated);
+      setEditMode(false);
+    } else {
+      const err = await r.json().catch(() => ({}));
+      alert(err.error || 'Failed to save');
+    }
+    setEditSaving(false);
+  }
+
   if (!bill) return <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>Loading...</div>;
+
+  const createdAt = bill.created_at
+    ? new Date(String(bill.created_at).endsWith('Z') ? bill.created_at : bill.created_at + 'Z')
+    : null;
+  const isEditable = createdAt && (Date.now() - createdAt.getTime()) / 3_600_000 <= 36;
 
   const due = Math.max(0, Number(bill.total) - Number(bill.paid));
 
@@ -162,9 +220,17 @@ export default function BillDetail() {
               <p style={{ fontSize: 13, opacity: 0.8, marginTop: 3 }}>{bill.shop_name}</p>
               <p style={{ fontSize: 12, opacity: 0.65, marginTop: 2 }}>{bill.delivery_date}</p>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 11, opacity: 0.75 }}>Total</div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt(bill.total)}</div>
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+              <div>
+                <div style={{ fontSize: 11, opacity: 0.75 }}>Total</div>
+                <div style={{ fontSize: 22, fontWeight: 800 }}>{fmt(bill.total)}</div>
+              </div>
+              {isEditable && !editMode && (
+                <button onClick={openEdit}
+                  style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.35)', color: '#fff', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  ✏️ Edit
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -215,6 +281,84 @@ export default function BillDetail() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* Edit Form */}
+        {editMode && (
+          <div style={{ background: '#fff', margin: '12px', borderRadius: 16, padding: '16px', boxShadow: '0 2px 16px rgba(15,52,96,0.10)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700 }}>Edit Bill</h3>
+              <button onClick={() => setEditMode(false)}
+                style={{ background: 'none', border: 'none', fontSize: 20, color: '#999', cursor: 'pointer', padding: 0 }}>×</button>
+            </div>
+
+            {/* Date */}
+            <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>Delivery Date</label>
+            <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)}
+              style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 12, outline: 'none', boxSizing: 'border-box' }} />
+
+            {/* Items */}
+            <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 6 }}>Items</label>
+            {editItems.map((it, idx) => (
+              <div key={idx} style={{ background: '#f8f9fb', borderRadius: 10, padding: '10px', marginBottom: 8 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                  <input type="text" placeholder="Product name" value={it.product_name} onChange={e => editItemChange(idx, 'product_name', e.target.value)}
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+                  <select value={it.unit} onChange={e => editItemChange(idx, 'unit', e.target.value)}
+                    style={{ padding: '8px 6px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, background: '#fff', width: 70 }}>
+                    {['pcs','dozen','box','pack','roll','set','kg','m'].map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input type="number" placeholder="Qty" value={it.qty} onChange={e => editItemChange(idx, 'qty', e.target.value)} min="0" step="any"
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+                  <span style={{ color: '#bbb', fontSize: 13 }}>×</span>
+                  <input type="number" placeholder="Unit price" value={it.unit_price} onChange={e => editItemChange(idx, 'unit_price', e.target.value)} min="0" step="any"
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0f3460', minWidth: 60, textAlign: 'right' }}>
+                    {Number(it.qty) > 0 && Number(it.unit_price) >= 0 ? fmt(Number(it.qty) * Number(it.unit_price)) : '—'}
+                  </span>
+                  <button onClick={() => removeEditItem(idx)}
+                    style={{ background: '#fef0f0', border: 'none', color: '#e74c3c', borderRadius: 6, padding: '6px 8px', fontSize: 14, cursor: 'pointer' }}>×</button>
+                </div>
+              </div>
+            ))}
+            <button onClick={addEditItem}
+              style={{ width: '100%', padding: '9px', background: '#f0f4ff', border: '1.5px dashed #b0c0e8', borderRadius: 8, fontSize: 13, color: '#0f3460', cursor: 'pointer', marginBottom: 12 }}>
+              + Add Item
+            </button>
+
+            {/* Paid */}
+            <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>Amount Paid</label>
+            <input type="number" placeholder="0" value={editPaid} onChange={e => setEditPaid(e.target.value)} min="0" step="any"
+              style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 12, outline: 'none', boxSizing: 'border-box' }} />
+
+            {/* Note */}
+            <label style={{ fontSize: 12, color: '#888', display: 'block', marginBottom: 4 }}>Note (optional)</label>
+            <input type="text" placeholder="Any note..." value={editNote} onChange={e => setEditNote(e.target.value)}
+              style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e0e0e0', borderRadius: 8, fontSize: 14, marginBottom: 14, outline: 'none', boxSizing: 'border-box' }} />
+
+            {/* Total preview */}
+            {editItems.some(it => Number(it.qty) > 0) && (
+              <div style={{ background: '#f0f4ff', borderRadius: 8, padding: '10px 12px', marginBottom: 12, display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
+                <span style={{ fontWeight: 600 }}>New Total</span>
+                <span style={{ fontWeight: 800, color: '#0f3460' }}>
+                  {fmt(editItems.reduce((s, it) => s + (Number(it.qty) * Number(it.unit_price) || 0), 0))}
+                </span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setEditMode(false)}
+                style={{ flex: 1, padding: '11px', background: '#f0f0f0', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={saveEdit} disabled={editSaving}
+                style={{ flex: 2, padding: '11px', background: editSaving ? '#aaa' : '#0f3460', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                {editSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Bill Items */}

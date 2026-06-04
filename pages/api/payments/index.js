@@ -19,6 +19,20 @@ export default async function handler(req, res) {
         [Number(shop_id), delivery_id ? Number(delivery_id) : null, amt, note || null, payment_date || new Date().toISOString().slice(0, 10)]
       );
       await tx.run('UPDATE shops SET outstanding=MAX(0, outstanding-?) WHERE id=?', [amt, Number(shop_id)]);
+
+      // Distribute payment across outstanding deliveries oldest-first so deliveries.paid stays accurate
+      const unpaid = await tx.query(
+        'SELECT id, total, paid FROM deliveries WHERE shop_id=? AND paid < total ORDER BY delivery_date ASC, id ASC',
+        [Number(shop_id)]
+      );
+      let remaining = amt;
+      for (const d of unpaid) {
+        if (remaining <= 0) break;
+        const due = Number(d.total) - Number(d.paid);
+        const apply = Math.min(remaining, due);
+        await tx.run('UPDATE deliveries SET paid=paid+? WHERE id=?', [apply, d.id]);
+        remaining -= apply;
+      }
     });
 
     const shop = await db.queryOne('SELECT * FROM shops WHERE id=?', [Number(shop_id)]);
